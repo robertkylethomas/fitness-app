@@ -4,11 +4,8 @@
 
 You will implement a complete Jakarta EE 11 fitness challenge platform by following these 7 phases.
 
-**Estimated Time: 5.5 hours**
 
----
-
-## Phase 1: Add Bean Validation (20 minutes)
+## Phase 1: Add Bean Validation 
 
 ### Task: Add validation annotations to entity classes
 
@@ -33,7 +30,7 @@ private String username;
 
 ---
 
-## Phase 2: Implement Repository Layer (45 minutes)
+## Phase 2: Implement Repository Layer 
 
 ### Task: Create 3 repository classes
 
@@ -106,7 +103,7 @@ Implement:
 
 ---
 
-## Phase 3: Implement Service Layer (60 minutes)
+## Phase 3: Implement Service Layer 
 
 ### Task: Create 3 service classes with CDI
 
@@ -162,7 +159,7 @@ Key methods:
 
 ---
 
-## Phase 4: Implement REST API (75 minutes)
+## Phase 4: Implement REST API 
 
 ### Task: Create JAX-RS resources
 
@@ -211,7 +208,7 @@ Implement:
 
 ---
 
-## Phase 5: Implement Security (45 minutes)
+## Phase 5: Implement Security 
 
 ### Task: Create DatabaseIdentityStore
 
@@ -248,7 +245,7 @@ public class DatabaseIdentityStore implements IdentityStore {
 
 ---
 
-## Phase 6: Implement Web Interface (60 minutes)
+## Phase 6: Implement Web Interface 
 
 ### Task: Create servlets
 
@@ -283,7 +280,7 @@ public class DashboardServlet extends HttpServlet {
 
 ---
 
-## Phase 7: Testing & Deployment (30 minutes)
+## Phase 7: Testing & Deployment
 
 ### Build and Deploy
 
@@ -314,14 +311,11 @@ curl -X POST 'http://localhost:8080/fitchallenge/api/challenges?creatorId=1' \
 
 ## Verification Checklist
 
-- [ ] All entities have validation annotations
-- [ ] All 3 repositories implemented
-- [ ] All 3 services implemented with CDI
-- [ ] REST API returns data
-- [ ] Security validates credentials
-- [ ] Dashboard displays challenges
-- [ ] Application deploys without errors
+-  All entities have validation annotations
+-  All 3 repositories implemented
+-  All 3 services implemented with CDI
+-  REST API returns data
+-  Security validates credentials
+-  Dashboard displays challenges
+-  Application deploys without errors
 
----
-
-**Need help?** Refer to the Solution code or Jakarta EE documentation!
