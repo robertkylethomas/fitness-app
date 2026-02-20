@@ -1,117 +1,55 @@
-# FitChallenge - STARTER CODE
+# README Template
 
-**Jakarta EE 11 Capstone Project**
+Below is a template provided for use when building your README file for students.
 
-This is the **STARTER CODE** for students. You will implement the missing pieces to create a complete fitness challenge platform.
+# Project Title
 
-## 🎯 What You Have
+Project description goes here.
 
-✅ **Complete Configuration** - pom.xml, persistence.xml, beans.xml
-✅ **Complete Entity Classes** - User, Challenge, ProgressLog, Achievement (WITHOUT validation)
-✅ **All Enums** - Role, ChallengeType, ChallengeStatus, AchievementType
-✅ **Helper Classes** - Exceptions, Events, Config
-✅ **Project Structure** - All packages ready for your code
+## Getting Started
 
-## 🚧 What You Need to Implement
+Instructions for how to get a copy of the project running on your local machine.
 
-### Phase 1: Add Bean Validation (20 minutes)
-Add validation annotations to all entity classes:
-- User: @NotBlank, @Size, @Email
-- Challenge: @NotBlank, @NotNull, @Min
-- ProgressLog: @NotNull, @Min
-- Achievement: @NotNull, @NotBlank
+### Dependencies
 
-### Phase 2: Implement Repositories (45 minutes)
-Create 3 repository classes:
-- **UserRepository.java** - CRUD + findByUsername
-- **ChallengeRepository.java** - CRUD + findActive, findByType
-- **ProgressLogRepository.java** - CRUD + findByChallenge, sumByChallenge
-
-### Phase 3: Implement Services (60 minutes)
-Create 3 service classes with CDI:
-- **UserService.java** - User management + password hashing
-- **ChallengeService.java** - Challenge CRUD + join/leave + events
-- **ProgressService.java** - Progress logging + leaderboard calculation
-
-### Phase 4: Implement REST API (75 minutes)
-Create JAX-RS resources:
-- **ChallengeResource.java** - Complete CRUD endpoints
-- **ProgressResource.java** - Progress logging endpoints
-- Exception mappers for error handling
-
-### Phase 5: Implement Security (45 minutes)
-Create authentication:
-- **DatabaseIdentityStore.java** - Validate credentials against database
-
-### Phase 6: Implement Web Interface (60 minutes)
-Create servlets:
-- **DashboardServlet.java** - Display active challenges
-- **AuthenticationFilter.java** - Protect servlet pages
-
-### Phase 7: Testing & Deployment (30 minutes)
-- Test with curl
-- Deploy to WildFly
-- Verify all functionality
-
-**Total Time: ~5.5 hours**
-
-## 🚀 Quick Start
-
-### 1. Configure WildFly Datasource
-
-```bash
-cd ~/tools/jakartaee-servers/wildfly-32.0.1.Final/bin
-./jboss-cli.sh --connect
-
-data-source add --name=FitChallengeDS \
-    --jndi-name=java:jboss/datasources/FitChallengeDS \
-    --driver-name=h2 \
-    --connection-url=jdbc:h2:mem:fitchallengedb;DB_CLOSE_DELAY=-1 \
-    --user-name=sa \
-    --password=sa \
-    --enabled=true
-
-reload
-exit
+```
+Examples here
 ```
 
-### 2. Build & Deploy
+### Installation
 
-```bash
-cd FitChallenge-StarterCode
-mvn clean package
-mvn wildfly:deploy
+Step by step explanation of how to get a dev environment running.
+
+List out the steps
+
+```
+Give an example here
 ```
 
-### 3. Test
+## Testing
 
-```bash
-curl http://localhost:8080/fitchallenge/api/challenges
+Explain the steps needed to run any automated tests
+
+### Break Down Tests
+
+Explain what each test does and why
+
+```
+Examples here
 ```
 
-## 📋 Implementation Guide
+## Project Instructions
 
-Follow the student instructions document for detailed step-by-step guidance on implementing each component.
+This section should contain all the student deliverables for this project.
 
-## 🎯 Learning Objectives
+## Built With
 
-After completing this project, you will be able to:
-- ✅ Create JPA entities with validation
-- ✅ Implement repository pattern with EntityManager
-- ✅ Use CDI for dependency injection
-- ✅ Create event-driven architecture with CDI events
-- ✅ Build REST APIs with JAX-RS
-- ✅ Implement security with DatabaseIdentityStore
-- ✅ Create servlets with filters and listeners
-- ✅ Deploy Jakarta EE applications to WildFly
+* [Item1](www.item1.com) - Description of item
+* [Item2](www.item2.com) - Description of item
+* [Item3](www.item3.com) - Description of item
 
-## 📚 Resources
+Include all items used to build project.
 
-- Jakarta EE 11 Documentation
-- WildFly Documentation
-- Student Instructions (provided separately)
-- Solution Code (for reference after completion)
+## License
 
----
-
-**Good luck with your implementation!** 🚀
+[License](LICENSE.txt)
