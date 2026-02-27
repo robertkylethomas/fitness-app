@@ -1,6 +1,8 @@
 package com.udacity.fitchallenge.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
 import java.time.LocalDateTime;
 
 /**

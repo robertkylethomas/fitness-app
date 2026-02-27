@@ -2,6 +2,11 @@ package com.udacity.fitchallenge.entity;
 
 import jakarta.persistence.*;
 import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +96,11 @@ public class Challenge {
     @PrePersist
     protected void onCreate() {
         createdDate = LocalDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "Challenge{id=" + id + ", title='" + title + "', type=" + type + ", status=" + status + '}';
     }
 
     // Getters and Setters
