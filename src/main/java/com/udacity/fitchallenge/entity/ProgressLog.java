@@ -48,7 +48,7 @@ public class ProgressLog {
     private Challenge challenge;
 
     // TODO: Add @NotNull and @Min(0) validation
-    @Column(nullable = false)
+    @Column(name = "progress_value", nullable = false)
     private Double value;
 
     // TODO: Add @NotNull validation
