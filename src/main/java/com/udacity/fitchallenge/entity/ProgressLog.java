@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 /**
  * ProgressLog entity
- * 
+ *
  * TODO (Phase 1): Add Bean Validation annotations
  * - @NotNull on user, challenge, value, logDate
  * - @Min(0) on value
@@ -18,18 +18,18 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "progress_logs")
 @NamedQueries({
-    @NamedQuery(
-        name = "ProgressLog.findByChallenge",
-        query = "SELECT p FROM ProgressLog p WHERE p.challenge.id = :challengeId ORDER BY p.logDate DESC"
-    ),
-    @NamedQuery(
-        name = "ProgressLog.findByUserAndChallenge",
-        query = "SELECT p FROM ProgressLog p WHERE p.user.id = :userId AND p.challenge.id = :challengeId ORDER BY p.logDate DESC"
-    ),
-    @NamedQuery(
-        name = "ProgressLog.sumByChallenge",
-        query = "SELECT p.user.id, SUM(p.value) FROM ProgressLog p WHERE p.challenge.id = :challengeId GROUP BY p.user.id ORDER BY SUM(p.value) DESC"
-    )
+        @NamedQuery(
+                name = "ProgressLog.findByChallenge",
+                query = "SELECT p FROM ProgressLog p WHERE p.challenge.id = :challengeId ORDER BY p.logDate DESC"
+        ),
+        @NamedQuery(
+                name = "ProgressLog.findByUserAndChallenge",
+                query = "SELECT p FROM ProgressLog p WHERE p.user.id = :userId AND p.challenge.id = :challengeId ORDER BY p.logDate DESC"
+        ),
+        @NamedQuery(
+                name = "ProgressLog.sumByChallenge",
+                query = "SELECT p.user.id, SUM(p.value) FROM ProgressLog p WHERE p.challenge.id = :challengeId GROUP BY p.user.id ORDER BY SUM(p.value) DESC"
+        )
 })
 public class ProgressLog {
 
@@ -79,19 +79,19 @@ public class ProgressLog {
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    
+
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
-    
+
     public Challenge getChallenge() { return challenge; }
     public void setChallenge(Challenge challenge) { this.challenge = challenge; }
-    
+
     public Double getValue() { return value; }
     public void setValue(Double value) { this.value = value; }
-    
+
     public LocalDateTime getLogDate() { return logDate; }
     public void setLogDate(LocalDateTime logDate) { this.logDate = logDate; }
-    
+
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
 

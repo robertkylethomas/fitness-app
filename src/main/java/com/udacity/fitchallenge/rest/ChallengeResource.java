@@ -10,8 +10,11 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+
 
 import java.net.URI;
 import java.util.List;
@@ -27,6 +30,9 @@ public class ChallengeResource {
 
     @Inject
     private ProgressService progressService;
+
+    @Context
+    private UriInfo uriInfo;
 
     /**
      * GET /api/challenges — returns all challenges.
@@ -94,8 +100,9 @@ public class ChallengeResource {
      *       invalid input is rejected before your method body runs
      * HINT: Check if creatorId == null first and return 400 if missing:
      *       Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", "...")).build()
-     * HINT: Use Response.created(URI.create("/api/challenges/" + created.getId()))
-     *       .entity(created).build() for the 201 Created response
+     // HINT: Use Response.created(uriInfo.getBaseUriBuilder()
+     //           .path("challenges").path(String.valueOf(created.getId())).build())
+     //       .entity(created).build() for the 201 Created response
      * HINT: Follow the same try/catch pattern as getChallengeById() above
      */
     @POST

@@ -7,8 +7,10 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 
 import java.net.URI;
 import java.util.List;
@@ -34,6 +36,8 @@ public class ProgressResource {
     @Inject
     private ProgressService progressService;
 
+    @Context
+    private UriInfo uriInfo;
     /**
      * POST /api/progress — logs a progress entry for a user in a challenge.
      * Returns 201 Created with the saved log in the response body.
@@ -45,7 +49,10 @@ public class ProgressResource {
     public Response logProgress(@Valid ProgressLog progressLog) {
         try {
             ProgressLog created = progressService.logProgress(progressLog);
-            URI location = URI.create("/api/progress/" + created.getId());
+            URI location = uriInfo.getBaseUriBuilder()
+                    .path("progress")
+                    .path(String.valueOf(created.getId()))
+                    .build();
             return Response.created(location).entity(created).build();
         } catch (ResourceNotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND)
