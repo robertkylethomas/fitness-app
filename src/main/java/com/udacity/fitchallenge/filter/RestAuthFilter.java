@@ -1,101 +1,133 @@
 package com.udacity.fitchallenge.filter;
 
 import jakarta.annotation.Priority;
-import jakarta.enterprise.inject.spi.CDI;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.inject.Inject;
 import jakarta.security.enterprise.credential.UsernamePasswordCredential;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.security.enterprise.identitystore.IdentityStoreHandler;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
- * JAX-RS authentication filter for the REST API.
+ * JAX-RS filter that handles authentication and authorization for the REST API.
+ * Provided — no changes needed.
  *
- * Intercepts every request to /api/* before it reaches a resource method.
- * Extracts the HTTP Basic Auth header, decodes the credentials, and delegates
- * validation to IdentityStoreHandler — which in turn calls
- * DatabaseIdentityStore.validate(). If validation succeeds, a SecurityContext
- * is set on the request so that role-based access control can be enforced.
- * If validation fails, the request is aborted with 401 Unauthorized.
+ * Runs at AUTHORIZATION priority (after resource matching), so ResourceInfo
+ * is fully populated and @RolesAllowed can be read from the matched method.
  *
- * TODO (Phase 5 - Security):
- * Complete the filter() method:
- * 1. Extract the Authorization header and check it starts with "Basic "
- * 2. Base64-decode the credentials and split on ':'
- * 3. Call identityStoreHandler.validate() with a UsernamePasswordCredential
- * 4. If INVALID → abort with 401 using abortUnauthorized()
- * 5. If VALID → build and set a SecurityContext on requestContext
- *    using result.getCallerPrincipal() and result.getCallerGroups()
+ * Step 1 - Role check: If the matched method has no @RolesAllowed, the
+ *           endpoint is public and the request passes through immediately.
+ *
+ * Step 2 - Authentication: Extracts and validates HTTP Basic credentials
+ *           via IdentityStoreHandler → DatabaseIdentityStore.validate().
+ *           Aborts with 401 if credentials are missing or invalid.
+ *
+ * Step 3 - Authorization: Checks whether the authenticated user holds one
+ *           of the required roles. Aborts with 403 if not.
  */
 @Provider
-@Priority(Priorities.AUTHENTICATION)
+@Priority(Priorities.AUTHORIZATION)
 public class RestAuthFilter implements ContainerRequestFilter {
+
+    @Inject
+    private IdentityStoreHandler identityStoreHandler;
+
+    @Context
+    private ResourceInfo resourceInfo;
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        // TODO: Implement Basic Auth validation
-        // Hint: retrieve IdentityStoreHandler via CDI.current().select(IdentityStoreHandler.class).get()
 
-        // Determine required roles for this endpoint
-        Set<String> requiredRoles = requiredRoles(
-                requestContext.getMethod(),
-                requestContext.getUriInfo().getPath().replaceFirst("^/", "")
-        );
+        // Step 1: Check if this endpoint requires any roles
+        Set<String> requiredRoles = getRequiredRoles();
+        if (requiredRoles.isEmpty()) {
+            return; // Public endpoint — no auth needed
+        }
 
-        // Public endpoint — no authentication needed
-        if (requiredRoles == null) {
+        // Step 2: Extract and validate Basic Auth credentials
+        String authHeader = requestContext.getHeaderString("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Basic ")) {
+            abortUnauthorized(requestContext);
             return;
         }
 
-        // TODO: Extract Basic Auth header
-        // TODO: Decode Base64 credentials
-        // TODO: Validate via IdentityStoreHandler
-        // TODO: Set SecurityContext on requestContext
-        // TODO: Check role and abort with 403 if insufficient
+        String encoded = authHeader.substring("Basic ".length()).trim();
+        String decoded;
+        try {
+            decoded = new String(Base64.getDecoder().decode(encoded));
+        } catch (IllegalArgumentException e) {
+            abortUnauthorized(requestContext);
+            return;
+        }
+
+        int colonIndex = decoded.indexOf(':');
+        if (colonIndex < 0) {
+            abortUnauthorized(requestContext);
+            return;
+        }
+        String username = decoded.substring(0, colonIndex);
+        String password = decoded.substring(colonIndex + 1);
+
+        CredentialValidationResult result = identityStoreHandler.validate(
+                new UsernamePasswordCredential(username, password)
+        );
+
+        if (result == null || result.getStatus() != CredentialValidationResult.Status.VALID) {
+            abortUnauthorized(requestContext);
+            return;
+        }
+
+        Set<String> userRoles = result.getCallerGroups();
+        String callerName = result.getCallerPrincipal().getName();
+        boolean secure = requestContext.getSecurityContext().isSecure();
+
+        requestContext.setSecurityContext(new SecurityContext() {
+            @Override public Principal getUserPrincipal() { return () -> callerName; }
+            @Override public boolean isUserInRole(String role) { return userRoles.contains(role); }
+            @Override public boolean isSecure() { return secure; }
+            @Override public String getAuthenticationScheme() { return SecurityContext.BASIC_AUTH; }
+        });
+
+        // Step 3: Enforce role requirement
+        boolean hasRole = requiredRoles.stream().anyMatch(userRoles::contains);
+        if (!hasRole) {
+            requestContext.abortWith(Response.status(Response.Status.FORBIDDEN)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity("{\"error\":\"Access denied: insufficient role\"}")
+                    .build());
+        }
     }
 
-    /**
-     * Returns the set of roles required for the given HTTP method + path.
-     * Returns null if the endpoint is public (no auth required).
-     *
-     * This mirrors the @RolesAllowed annotations on each resource method.
-     */
-    private Set<String> requiredRoles(String method, String path) {
-        Set<String> ALL_ROLES  = Set.of("USER", "MANAGER", "ADMIN");
-        Set<String> MGR_ADMIN  = Set.of("MANAGER", "ADMIN");
-        Set<String> ADMIN_ONLY = Set.of("ADMIN");
+    private Set<String> getRequiredRoles() {
+        if (resourceInfo == null) return Collections.emptySet();
 
-        if (path.matches("challenges/?")) {
-            if ("GET".equals(method))  return null;
-            if ("POST".equals(method)) return ALL_ROLES;
+        Method method = resourceInfo.getResourceMethod();
+        if (method != null && method.isAnnotationPresent(RolesAllowed.class)) {
+            return new HashSet<>(Arrays.asList(method.getAnnotation(RolesAllowed.class).value()));
         }
-        if (path.matches("challenges/\\d+")) {
-            if ("GET".equals(method))    return null;
-            if ("PUT".equals(method))    return MGR_ADMIN;
-            if ("DELETE".equals(method)) return ADMIN_ONLY;
-        }
-        if (path.matches("challenges/\\d+/(join|leave)")) return ALL_ROLES;
-        if (path.matches("challenges/\\d+/complete"))     return MGR_ADMIN;
-        if (path.matches("challenges/(active|stats)") ||
-                path.matches("challenges/\\d+/leaderboard"))  return null;
-        if (path.matches("progress/?")) {
-            if ("POST".equals(method)) return ALL_ROLES;
-        }
-        if (path.matches("progress/\\d+")) {
-            if ("DELETE".equals(method)) return MGR_ADMIN;
-        }
-        if (path.startsWith("progress/")) return null;
 
-        return ALL_ROLES;
+        Class<?> cls = resourceInfo.getResourceClass();
+        if (cls != null && cls.isAnnotationPresent(RolesAllowed.class)) {
+            return new HashSet<>(Arrays.asList(cls.getAnnotation(RolesAllowed.class).value()));
+        }
+
+        return Collections.emptySet();
     }
 
     private void abortUnauthorized(ContainerRequestContext ctx) {

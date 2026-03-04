@@ -5,7 +5,7 @@
              https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
              version="3.0">
     <persistence-unit name="FitChallengePU" transaction-type="JTA">
-        <jta-data-source>java:jboss/datasources/FitChallengeDS</jta-data-source>
+        <jta-data-source>java:jboss/datasources/ExampleDS</jta-data-source>
         <class>com.udacity.fitchallenge.entity.User</class>
         <class>com.udacity.fitchallenge.entity.Challenge</class>
         <class>com.udacity.fitchallenge.entity.ProgressLog</class>

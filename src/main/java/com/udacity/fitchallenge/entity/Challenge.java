@@ -74,7 +74,7 @@ public class Challenge {
     @JoinColumn(name = "creator_id")
     private User creator;
 
-    @ManyToMany
+    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinTable(
         name = "challenge_participants",
         joinColumns = @JoinColumn(name = "challenge_id"),
