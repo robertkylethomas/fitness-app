@@ -1,24 +1,33 @@
 package com.udacity.fitchallenge.rest;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.udacity.fitchallenge.entity.Challenge;
 import com.udacity.fitchallenge.entity.ChallengeStatus;
 import com.udacity.fitchallenge.entity.ChallengeType;
 import com.udacity.fitchallenge.exception.ResourceNotFoundException;
 import com.udacity.fitchallenge.service.ChallengeService;
 import com.udacity.fitchallenge.service.ProgressService;
+
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
-
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
 
 @Path("/challenges")
 @Produces(MediaType.APPLICATION_JSON)
@@ -42,7 +51,11 @@ public class ChallengeResource {
     @GET
     public Response getAllChallenges(@QueryParam("status") ChallengeStatus status,
                                      @QueryParam("type") ChallengeType type) {
-        List<Challenge> challenges;
+        List<Challenge> challenges = new ArrayList<>();
+
+        LocalDateTime now = LocalDateTime.now();
+
+
 
         if (status != null) {
             challenges = challengeService.getChallengesByStatus(status);
@@ -52,7 +65,15 @@ public class ChallengeResource {
             challenges = challengeService.getAllChallenges();
         }
 
+
         return Response.ok(challenges).build();
+
+    }
+
+    @GET
+    @Path("/ping")
+    public Response ping(){
+      return Response.ok("ping").build();
     }
 
     /**

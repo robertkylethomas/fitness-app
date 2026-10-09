@@ -51,7 +51,8 @@ public class UserService {
     public User createUser(User user) {
         // TODO: Hash the user's password using passwordHash.generate()
         // Then save and return the user using userRepository.save()
-        return null;
+        
+        return user;
     }
 
     /**

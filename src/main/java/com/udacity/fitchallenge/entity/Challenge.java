@@ -1,19 +1,35 @@
 package com.udacity.fitchallenge.entity;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Challenge entity
- * 
+ *
  * TODO (Phase 1): Add Bean Validation annotations
  * - @NotBlank and @Size on title
  * - @NotNull on type, status, startDate, endDate, goalValue
@@ -41,32 +57,37 @@ public class Challenge {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO: Add @NotBlank and @Size validation
+
+    @NotBlank
+    @Size
     @Column(nullable = false, length = 200)
     private String title;
 
     @Column(length = 1000)
     private String description;
 
-    // TODO: Add @NotNull validation
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ChallengeType type;
 
-    // TODO: Add @NotNull validation
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ChallengeStatus status = ChallengeStatus.ACTIVE;
 
-    // TODO: Add @NotNull validation
+    @NotNull
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
-    // TODO: Add @NotNull validation
+    @NotNull
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
-    // TODO: Add @NotNull and @Min(1) validation
+
+    @NotNull
+    @Min(1)
     @Column(name = "goal_value")
     private Integer goalValue;
 

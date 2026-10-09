@@ -1,5 +1,7 @@
 package com.udacity.fitchallenge.service;
 
+import java.util.List;
+
 import com.udacity.fitchallenge.entity.Challenge;
 import com.udacity.fitchallenge.entity.ChallengeStatus;
 import com.udacity.fitchallenge.entity.ChallengeType;
@@ -7,12 +9,11 @@ import com.udacity.fitchallenge.event.ChallengeCompletedEvent;
 import com.udacity.fitchallenge.exception.ResourceNotFoundException;
 import com.udacity.fitchallenge.repository.ChallengeRepository;
 import com.udacity.fitchallenge.repository.UserRepository;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
-import java.util.List;
 
 @ApplicationScoped
 public class ChallengeService {
