@@ -1,8 +1,11 @@
 package com.udacity.fitchallenge.repository;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import com.udacity.fitchallenge.entity.ProgressLog;
 
@@ -105,9 +108,24 @@ public class ProgressLogRepository {
         // Loop over results — each row is Object[] where row[0]=userId, row[1]=total
         // Put each entry into the map and return it
 
-        // TypedQuery<> query =
-        //   entityManager.createQuery("ProgressLog.sumByChallenge", Object[].class)
-        return null;
+        TypedQuery<Object[]> query = entityManager.createQuery("ProgressLog.sumByChallenge", Object[].class);
+        // pass the parameter to the query so for example you run this query: 
+        // SELECT p.user.id, SUM(p.value) FROM ProgressLog p WHERE p.challenge.id = 123 GROUP BY p.user.id ORDER BY SUM(p.value) DESC
+        query.setParameter("challengeId", challengeId);
+        
+        List<Object[]> result = query.getResultList();
+
+        Map<Long, Double> leaderboard = new LinkedHashMap<>();
+
+        for (Object[] row : result) {
+          Long userId = ((Number) row[0]).longValue();   
+          Double totalProgress = ((Number) row[1]).doubleValue();   
+
+          leaderboard.put(userId, totalProgress);
+        }
+
+        
+        return leaderboard;
     }
 
     /**

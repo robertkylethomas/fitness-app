@@ -1,10 +1,12 @@
 package com.udacity.fitchallenge.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.udacity.fitchallenge.entity.Challenge;
 import com.udacity.fitchallenge.entity.ChallengeStatus;
 import com.udacity.fitchallenge.entity.ChallengeType;
+import com.udacity.fitchallenge.entity.User;
 import com.udacity.fitchallenge.event.ChallengeCompletedEvent;
 import com.udacity.fitchallenge.exception.ResourceNotFoundException;
 import com.udacity.fitchallenge.repository.ChallengeRepository;
@@ -42,7 +44,12 @@ public class ChallengeService {
         // Set the creator on the challenge using challenge.setCreator()
         // Set status to ACTIVE using challenge.setStatus(ChallengeStatus.ACTIVE)
         // Save and return the challenge using challengeRepository.save()
-        return null;
+        User creator = userRepository.findById(creatorId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        challenge.setCreator(creator);
+        challenge.setStatus(ChallengeStatus.ACTIVE);
+
+        return challengeRepository.save(challenge);
     }
 
     /**
@@ -62,7 +69,19 @@ public class ChallengeService {
         // Check if user is already a participant — throw IllegalStateException if yes
         // Add user to challenge.getParticipants()
         // Save and return the updated challenge
-        return null;
+
+        Challenge currentChallenge = getChallengeById(challengeId);
+
+        User currentUser = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+       
+
+        if(currentChallenge.getParticipants().contains(currentUser)){
+          throw new IllegalStateException("User is already in challenge");
+        }
+
+        currentChallenge.getParticipants().add(currentUser);
+        return challengeRepository.save(currentChallenge);
     }
 
     /**

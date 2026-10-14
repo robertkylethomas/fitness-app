@@ -19,13 +19,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-/**
- * Achievement entity
- *
- * TODO (Phase 1): Add Bean Validation annotations
- * - @NotNull on user, type
- * - @NotBlank on name
- */
+
 @Entity
 @Table(name = "achievements")
 @NamedQueries({
@@ -44,19 +38,16 @@ public class Achievement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO: Add @NotNull validation
     @NotNull(message ="User cannot be null")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // TODO: Add @NotNull validation
     @NotNull(message ="Achievement Type cannot be null")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AchievementType type;
 
-    // TODO: Add @NotBlank validation
     @NotBlank(message ="Name cannot be empty")
     @Column(nullable = false, length = 100)
     private String name;

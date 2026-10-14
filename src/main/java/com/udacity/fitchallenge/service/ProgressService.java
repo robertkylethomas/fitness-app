@@ -60,6 +60,10 @@ public class ProgressService {
         // Save using progressLogRepository.save()
         // Call checkAndAwardAchievements(user, challenge)
         // Return the saved log
+
+        if(!progressLog.getUser().equals(null)){
+
+        }
         return null;
     }
 

@@ -49,21 +49,19 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO: Add @NotBlank and @Size validation annotations - done
+    
     @NotBlank(message="Username cannot be blank")
     @Min(value = 3, message="Username cannot be shorter than 3 characters")
     @Max(value = 50, message="Username cannot be longer than 50 characters")
     @Column(unique = true, nullable = false, length = 50)
     private String username;
 
-    // TODO: Add @NotBlank and @Size validation annotations
     @NotBlank(message="Password cannot be blank")
     @Min (value = 8, message="Password cannot be shorter than 8 characters")
     @Column(nullable = false)
     @JsonbTransient
     private String password;
 
-    // TODO: Add @NotBlank and @Email validation annotations
     @NotBlank(message="Email Address cannot be blank")
     @Email(message="Invalid email")
     @Column(unique = true, nullable = false)

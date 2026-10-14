@@ -33,18 +33,9 @@ public class UserRepository {
         return query.getResultList();
     }
 
-    /**
-     * Find a user by their username
-     * Returns Optional.empty() if no user found with that username
-     *
-     * HINT: Use createNamedQuery("User.findByUsername", User.class)
-     * HINT: Use query.setParameter("username", username)
-     * HINT: Use getSingleResult() wrapped in try/catch for NoResultException
-     */
+    
     public Optional<User> findByUsername(String username) {
-        // TODO: Create a TypedQuery using createNamedQuery("User.findByUsername", User.class)
-        // Set the :username parameter using query.setParameter("username", username)
-        // Use getSingleResult() — return Optional.of(result) if found, Optional.empty() if NoResultException
+       
         try{
           TypedQuery<User> query = entityManager
                   .createNamedQuery("User.findByUsername", User.class);
@@ -55,16 +46,9 @@ public class UserRepository {
         }
     }
 
-    /**
-     * Save a user — either insert a new one or update an existing one
-     * Rule: if user.getId() == null → new user → use persist()
-     *       if user.getId() != null → existing user → use merge()
-     */
+    
     public User save(User user) {
-        // TODO: Check if user.getId() == null
-        // If yes: call entityManager.persist(user) and return user
-        // If no:  call entityManager.merge(user) and return the result
-
+       
 
         if(user.getId() == null){
           entityManager.persist(user);

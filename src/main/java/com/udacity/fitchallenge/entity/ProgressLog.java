@@ -71,7 +71,6 @@ public class ProgressLog {
     @Column(name = "log_date", nullable = false)
     private LocalDateTime logDate;
 
-    // TODO: Add @Size validation
     @Size (max=500, message="Note cannot be longer than 500 characters")
     @Column(length = 500)
     private String notes;
