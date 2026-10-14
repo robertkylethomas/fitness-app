@@ -1,18 +1,30 @@
 package com.udacity.fitchallenge.entity;
 
-import jakarta.persistence.*;
-import jakarta.json.bind.annotation.JsonbTransient;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
 /**
  * User entity
- * 
+ *
  * TODO (Phase 1): Add Bean Validation annotations
  * - @NotBlank on username, password, email
  * - @Size on username (min=3, max=50)
@@ -37,16 +49,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO: Add @NotBlank and @Size validation annotations
+    // TODO: Add @NotBlank and @Size validation annotations - done
+    @NotBlank(message="Username cannot be blank")
+    @Min(value = 3, message="Username cannot be shorter than 3 characters")
+    @Max(value = 50, message="Username cannot be longer than 50 characters")
     @Column(unique = true, nullable = false, length = 50)
     private String username;
 
     // TODO: Add @NotBlank and @Size validation annotations
+    @NotBlank(message="Password cannot be blank")
+    @Min (value = 8, message="Password cannot be shorter than 8 characters")
     @Column(nullable = false)
     @JsonbTransient
     private String password;
 
     // TODO: Add @NotBlank and @Email validation annotations
+    @NotBlank(message="Email Address cannot be blank")
+    @Email(message="Invalid email")
     @Column(unique = true, nullable = false)
     private String email;
 

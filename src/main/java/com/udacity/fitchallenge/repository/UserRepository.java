@@ -45,7 +45,14 @@ public class UserRepository {
         // TODO: Create a TypedQuery using createNamedQuery("User.findByUsername", User.class)
         // Set the :username parameter using query.setParameter("username", username)
         // Use getSingleResult() — return Optional.of(result) if found, Optional.empty() if NoResultException
-        return null;
+        try{
+          TypedQuery<User> query = entityManager
+                  .createNamedQuery("User.findByUsername", User.class);
+          return Optional.of(query.getSingleResult());
+
+        } catch(NoResultException nre){
+          return Optional.empty();
+        }
     }
 
     /**
@@ -57,7 +64,14 @@ public class UserRepository {
         // TODO: Check if user.getId() == null
         // If yes: call entityManager.persist(user) and return user
         // If no:  call entityManager.merge(user) and return the result
-        return null;
+
+
+        if(user.getId() == null){
+          entityManager.persist(user);
+        } else {
+          entityManager.merge(user);
+        }
+        return user;
     }
 
     /**

@@ -58,8 +58,8 @@ public class Challenge {
     private Long id;
 
 
-    @NotBlank
-    @Size
+    @NotBlank(message ="Title cannot be null")
+    @Size(max = 200, message = "Title cannot be longer than 200 characters")
     @Column(nullable = false, length = 200)
     private String title;
 
@@ -67,27 +67,27 @@ public class Challenge {
     private String description;
 
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
+    @NotNull(message ="Challenge Type cannot be null")
+        @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ChallengeType type;
 
-    @NotNull
+    @NotNull(message ="Challenge Status cannot be null")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ChallengeStatus status = ChallengeStatus.ACTIVE;
 
-    @NotNull
+    @NotNull(message ="Start Date cannot be null")
     @Column(name = "start_date", nullable = false)
     private LocalDateTime startDate;
 
-    @NotNull
+    @NotNull(message ="End Date cannot be null")
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
 
-    @NotNull
-    @Min(1)
+    @NotNull(message ="Goal Value cannot be null")
+    @Min(value = 1, message="Goal value must have a minimum of 1")
     @Column(name = "goal_value")
     private Integer goalValue;
 

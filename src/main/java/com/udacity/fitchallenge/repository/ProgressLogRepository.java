@@ -1,15 +1,15 @@
 package com.udacity.fitchallenge.repository;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import com.udacity.fitchallenge.entity.ProgressLog;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @ApplicationScoped
 public class ProgressLogRepository {
@@ -66,7 +66,12 @@ public class ProgressLogRepository {
         // TODO: Check if progressLog.getId() == null
         // If yes: call entityManager.persist(progressLog) and return progressLog
         // If no:  call entityManager.merge(progressLog) and return the result
-        return null;
+        if(progressLog.getId() == null){
+          entityManager.persist(progressLog);
+        } else {
+          entityManager.merge(progressLog);
+        }
+        return progressLog;
     }
 
     /**
@@ -99,6 +104,9 @@ public class ProgressLogRepository {
         // Create a new LinkedHashMap<Long, Double>
         // Loop over results — each row is Object[] where row[0]=userId, row[1]=total
         // Put each entry into the map and return it
+
+        // TypedQuery<> query =
+        //   entityManager.createQuery("ProgressLog.sumByChallenge", Object[].class)
         return null;
     }
 

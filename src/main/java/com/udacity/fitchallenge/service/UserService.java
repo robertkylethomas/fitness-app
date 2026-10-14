@@ -1,17 +1,18 @@
 package com.udacity.fitchallenge.service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.udacity.fitchallenge.entity.User;
 import com.udacity.fitchallenge.exception.ResourceNotFoundException;
 import com.udacity.fitchallenge.repository.UserRepository;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.identitystore.Pbkdf2PasswordHash;
 import jakarta.transaction.Transactional;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class UserService {
@@ -51,8 +52,11 @@ public class UserService {
     public User createUser(User user) {
         // TODO: Hash the user's password using passwordHash.generate()
         // Then save and return the user using userRepository.save()
-        
-        return user;
+
+        String hashed = passwordHash.generate(user.getPassword().toCharArray());
+        user.setPassword(hashed);
+
+        return userRepository.save(user);
     }
 
     /**
@@ -72,7 +76,8 @@ public class UserService {
     public User findByUsername(String username) {
         // TODO: Call userRepository.findByUsername(username)
         // Use .orElseThrow() to throw ResourceNotFoundException if not found
-        return null;
+
+        return  userRepository.findByUsername(username).orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
     }
 
     /**

@@ -14,7 +14,9 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * ProgressLog entity
@@ -47,25 +49,30 @@ public class ProgressLog {
     private Long id;
 
 
-    @NotNull
+    @NotNull(message="User must be selected")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // TODO: Add @NotNull validation
+
+    @NotNull(message="Challenge must be selected")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "challenge_id", nullable = false)
     private Challenge challenge;
 
-    // TODO: Add @NotNull and @Min(0) validation
+
+    @NotNull(message ="Value cannot be null")
+    @Min(value = 0, message = "Value cannot be 0")
     @Column(name = "progress_value", nullable = false)
     private Double value;
 
-    // TODO: Add @NotNull validation
+
+    @NotNull
     @Column(name = "log_date", nullable = false)
     private LocalDateTime logDate;
 
     // TODO: Add @Size validation
+    @Size (max=500, message="Note cannot be longer than 500 characters")
     @Column(length = 500)
     private String notes;
 
