@@ -11,6 +11,7 @@ import com.udacity.fitchallenge.entity.ChallengeType;
 import com.udacity.fitchallenge.exception.ResourceNotFoundException;
 import com.udacity.fitchallenge.service.ChallengeService;
 import com.udacity.fitchallenge.service.ProgressService;
+import com.udacity.fitchallenge.service.UserService;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -40,22 +41,22 @@ public class ChallengeResource {
     @Inject
     private ProgressService progressService;
 
+    @Inject
+    private UserService userService;
+
     @Context
     private UriInfo uriInfo;
 
     /**
-     * GET /api/challenges — returns all challenges.
-     * Supports optional filtering by ?status= or ?type= query parameters.
-     * Provided — no changes needed.
+     * GET /api/challenges — returns all challenges. Supports optional filtering
+     * by ?status= or ?type= query parameters. Provided — no changes needed.
      */
     @GET
     public Response getAllChallenges(@QueryParam("status") ChallengeStatus status,
-                                     @QueryParam("type") ChallengeType type) {
+            @QueryParam("type") ChallengeType type) {
         List<Challenge> challenges = new ArrayList<>();
 
         LocalDateTime now = LocalDateTime.now();
-
-
 
         if (status != null) {
             challenges = challengeService.getChallengesByStatus(status);
@@ -65,20 +66,19 @@ public class ChallengeResource {
             challenges = challengeService.getAllChallenges();
         }
 
-
         return Response.ok(challenges).build();
 
     }
 
     @GET
     @Path("/ping")
-    public Response ping(){
-      return Response.ok("ping").build();
+    public Response ping() {
+        return Response.ok("ping").build();
     }
 
     /**
-     * GET /api/challenges/active — returns only active challenges.
-     * Provided — no changes needed.
+     * GET /api/challenges/active — returns only active challenges. Provided —
+     * no changes needed.
      */
     @GET
     @Path("/active")
@@ -88,14 +88,13 @@ public class ChallengeResource {
     }
 
     /**
-     * GET /api/challenges/{id} — returns a single challenge by ID.
-     * Returns 404 Not Found if the challenge does not exist.
-     * Provided — no changes needed.
+     * GET /api/challenges/{id} — returns a single challenge by ID. Returns 404
+     * Not Found if the challenge does not exist. Provided — no changes needed.
      *
-     * Study this method before implementing createChallenge() and joinChallenge().
-     * It shows the standard try/catch pattern used throughout this class:
-     *   - catch ResourceNotFoundException → return 404 with a JSON error body
-     *   - wrap error messages in Map.of("error", e.getMessage())
+     * Study this method before implementing createChallenge() and
+     * joinChallenge(). It shows the standard try/catch pattern used throughout
+     * this class: - catch ResourceNotFoundException → return 404 with a JSON
+     * error body - wrap error messages in Map.of("error", e.getMessage())
      */
     @GET
     @Path("/{id}")
@@ -111,72 +110,108 @@ public class ChallengeResource {
     }
 
     /**
-     * POST /api/challenges — creates a new challenge.
-     * Requires a creatorId query parameter identifying the challenge creator.
-     * Returns 201 Created with the new challenge in the response body.
-     * Returns 400 Bad Request if creatorId is missing.
-     * Returns 404 Not Found if the creator user does not exist.
+     * POST /api/challenges — creates a new challenge. Requires a creatorId
+     * query parameter identifying the challenge creator. Returns 201 Created
+     * with the new challenge in the response body. Returns 400 Bad Request if
+     * creatorId is missing. Returns 404 Not Found if the creator user does not
+     * exist.
      *
-     * HINT: @Valid on the Challenge parameter triggers Bean Validation automatically —
-     *       invalid input is rejected before your method body runs
+     * HINT: @Valid on the Challenge parameter triggers Bean Validation
+     * automatically — invalid input is rejected before your method body runs
      * HINT: Check if creatorId == null first and return 400 if missing:
-     *       Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", "...")).build()
-     // HINT: Use Response.created(uriInfo.getBaseUriBuilder()
-     //           .path("challenges").path(String.valueOf(created.getId())).build())
-     //       .entity(created).build() for the 201 Created response
-     * HINT: Follow the same try/catch pattern as getChallengeById() above
+     * Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error",
+     * "...")).build() // HINT: Use Response.created(uriInfo.getBaseUriBuilder()
+     * // .path("challenges").path(String.valueOf(created.getId())).build()) //
+     * .entity(created).build() for the 201 Created response HINT: Follow the
+     * same try/catch pattern as getChallengeById() above
      */
     @POST
     @RolesAllowed({"USER", "MANAGER", "ADMIN"})
     public Response createChallenge(@Valid Challenge challenge,
-                                    @QueryParam("creatorId") Long creatorId) {
+            @QueryParam("creatorId") Long creatorId) {
         // TODO: Return 400 if creatorId is null
         // Call challengeService.createChallenge(challenge, creatorId)
         // Return 201 Created with a Location header and the created challenge body
         // Catch ResourceNotFoundException → 404
-        return null;
+
+        if (creatorId == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", "Creator ID cannot be empty")).build();
+        }
+
+        try {
+            Challenge created = challengeService.createChallenge(challenge, creatorId);
+
+            return Response.created(
+                    uriInfo.getBaseUriBuilder()
+                            .path("challenges")
+                            .path(String.valueOf(created.getId()))
+                            .build())
+                    .entity(created)
+                    .build();
+
+        } catch (ResourceNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
+
     }
 
     /**
-     * POST /api/challenges/{id}/join — adds a user to a challenge's participant list.
-     * Requires a userId query parameter.
-     * Returns 200 OK with the updated challenge on success.
-     * Returns 400 Bad Request if userId is missing.
-     * Returns 404 Not Found if the challenge or user does not exist.
-     * Returns 409 Conflict if the user is already a participant.
+     * POST /api/challenges/{id}/join — adds a user to a challenge's participant
+     * list. Requires a userId query parameter. Returns 200 OK with the updated
+     * challenge on success. Returns 400 Bad Request if userId is missing.
+     * Returns 404 Not Found if the challenge or user does not exist. Returns
+     * 409 Conflict if the user is already a participant.
      *
-     * HINT: Check if userId == null first — return 400 if missing
-     * HINT: Call challengeService.joinChallenge(challengeId, userId)
-     * HINT: You need TWO catch blocks this time:
-     *       catch ResourceNotFoundException → 404 (resource missing)
-     *       catch IllegalStateException    → 409 Conflict (already a participant)
-     *       Response.status(Response.Status.CONFLICT).entity(Map.of("error", e.getMessage())).build()
+     * HINT: Check if userId == null first — return 400 if missing HINT: Call
+     * challengeService.joinChallenge(challengeId, userId) HINT: You need TWO
+     * catch blocks this time: catch ResourceNotFoundException → 404 (resource
+     * missing) catch IllegalStateException → 409 Conflict (already a
+     * participant)
+     * Response.status(Response.Status.CONFLICT).entity(Map.of("error",
+     * e.getMessage())).build()
      */
     @POST
     @Path("/{id}/join")
     @RolesAllowed({"USER", "MANAGER", "ADMIN"})
     public Response joinChallenge(@PathParam("id") Long challengeId,
-                                  @QueryParam("userId") Long userId) {
-        // TODO: Return 400 if userId is null
-        // Call challengeService.joinChallenge(challengeId, userId)
-        // Return 200 OK with updated challenge on success
-        // Catch ResourceNotFoundException → 404
-        // Catch IllegalStateException → 409 Conflict
-        return null;
+            @QueryParam("userId") Long userId) {
+        if (userId == null) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "User ID cannot be empty"))
+                    .build();
+        }
+
+        try {
+            Challenge updated = challengeService.joinChallenge(challengeId, userId);
+
+            return Response.ok(updated).build();
+
+        } catch (ResourceNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+
+        } catch (IllegalStateException e) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
     }
 
     /**
-     * GET /api/challenges/{id}/leaderboard — returns ranked progress for a challenge.
-     * Returns 404 if the challenge does not exist.
-     * Provided — no changes needed.
+     * GET /api/challenges/{id}/leaderboard — returns ranked progress for a
+     * challenge. Returns 404 if the challenge does not exist. Provided — no
+     * changes needed.
      */
     @GET
     @Path("/{id}/leaderboard")
     public Response getLeaderboard(@PathParam("id") Long challengeId) {
         try {
             challengeService.getChallengeById(challengeId);
-            List<Map<String, Object>> leaderboard =
-                    progressService.getLeaderboardWithUserDetails(challengeId);
+            List<Map<String, Object>> leaderboard
+                    = progressService.getLeaderboardWithUserDetails(challengeId);
             return Response.ok(leaderboard).build();
         } catch (ResourceNotFoundException e) {
             return Response.status(Response.Status.NOT_FOUND)
@@ -186,8 +221,8 @@ public class ChallengeResource {
     }
 
     /**
-     * PUT /api/challenges/{id}/complete — marks a challenge as COMPLETED and fires a CDI event.
-     * Provided — no changes needed.
+     * PUT /api/challenges/{id}/complete — marks a challenge as COMPLETED and
+     * fires a CDI event. Provided — no changes needed.
      */
     @PUT
     @Path("/{id}/complete")
@@ -204,21 +239,27 @@ public class ChallengeResource {
     }
 
     /**
-     * DELETE /api/challenges/{id} — deletes a challenge by ID.
-     * Returns 204 No Content on success — no response body since the resource is gone.
-     * Returns 404 Not Found if the challenge does not exist.
+     * DELETE /api/challenges/{id} — deletes a challenge by ID. Returns 204 No
+     * Content on success — no response body since the resource is gone. Returns
+     * 404 Not Found if the challenge does not exist.
      *
-     * HINT: Call challengeService.deleteChallenge(id)
-     * HINT: Use Response.noContent().build() for 204 — not Response.ok()
-     * HINT: Follow the same try/catch pattern as getChallengeById()
+     * HINT: Call challengeService.deleteChallenge(id) HINT: Use
+     * Response.noContent().build() for 204 — not Response.ok() HINT: Follow the
+     * same try/catch pattern as getChallengeById()
      */
     @DELETE
     @Path("/{id}")
     @RolesAllowed("ADMIN")
     public Response deleteChallenge(@PathParam("id") Long id) {
-        // TODO: Call challengeService.deleteChallenge(id)
-        // Return 204 No Content on success
-        // Catch ResourceNotFoundException → 404
-        return null;
+        try {
+            challengeService.deleteChallenge(id);
+
+            return Response.noContent().build();
+
+        } catch (ResourceNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", e.getMessage()))
+                    .build();
+        }
     }
 }

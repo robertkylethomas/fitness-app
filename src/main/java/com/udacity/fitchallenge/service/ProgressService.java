@@ -1,22 +1,26 @@
 package com.udacity.fitchallenge.service;
 
-import com.udacity.fitchallenge.entity.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.udacity.fitchallenge.entity.Achievement;
+import com.udacity.fitchallenge.entity.AchievementType;
+import com.udacity.fitchallenge.entity.Challenge;
+import com.udacity.fitchallenge.entity.ProgressLog;
+import com.udacity.fitchallenge.entity.User;
 import com.udacity.fitchallenge.event.AchievementEarnedEvent;
 import com.udacity.fitchallenge.repository.ChallengeRepository;
 import com.udacity.fitchallenge.repository.ProgressLogRepository;
 import com.udacity.fitchallenge.repository.UserRepository;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class ProgressService {
@@ -61,10 +65,19 @@ public class ProgressService {
         // Call checkAndAwardAchievements(user, challenge)
         // Return the saved log
 
-        if(!progressLog.getUser().equals(null)){
+         User user = userRepository.findById(progressLog.getUser().getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        }
-        return null;
+        Challenge challenge = challengeRepository.findById(progressLog.getChallenge().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Challenge not found"));
+
+        progressLog.setChallenge(challenge);
+        progressLog.setUser(user);
+
+        progressLogRepository.save(progressLog);
+        checkAndAwardAchievements(user, challenge);
+
+        return progressLog;
     }
 
     /**
